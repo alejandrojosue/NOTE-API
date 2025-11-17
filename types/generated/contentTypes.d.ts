@@ -459,12 +459,209 @@ export interface ApiAuditAudit extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiNewNew extends Struct.CollectionTypeSchema {
-  collectionName: 'news';
+export interface ApiBranchBranch extends Struct.CollectionTypeSchema {
+  collectionName: 'branches';
   info: {
-    displayName: 'NEW';
-    pluralName: 'news';
-    singularName: 'new';
+    displayName: 'Branch';
+    pluralName: 'branches';
+    singularName: 'branch';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    address: Schema.Attribute.Text;
+    company: Schema.Attribute.Relation<'oneToOne', 'api::company.company'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::branch.branch'
+    > &
+      Schema.Attribute.Private;
+    manager: Schema.Attribute.String;
+    phones: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
+  collectionName: 'companies';
+  info: {
+    displayName: 'Company';
+    pluralName: 'companies';
+    singularName: 'company';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    address: Schema.Attribute.Text;
+    contability: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::contability.contability'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    email: Schema.Attribute.Email;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::company.company'
+    > &
+      Schema.Attribute.Private;
+    logo: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
+    manager: Schema.Attribute.String;
+    name: Schema.Attribute.String;
+    phones: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    rtn: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 14;
+        minLength: 14;
+      }>;
+    slogan: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    users_permissions_user: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
+export interface ApiContabilityContability extends Struct.CollectionTypeSchema {
+  collectionName: 'contabilities';
+  info: {
+    displayName: 'Contability';
+    pluralName: 'contabilities';
+    singularName: 'contability';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    cai: Schema.Attribute.String & Schema.Attribute.Required;
+    code: Schema.Attribute.String & Schema.Attribute.Required;
+    correlative: Schema.Attribute.BigInteger &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: '0';
+        },
+        string
+      >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    deadline: Schema.Attribute.Date & Schema.Attribute.Required;
+    detailContability: Schema.Attribute.Component<
+      'details.history-change',
+      true
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      >;
+    endRange: Schema.Attribute.BigInteger & Schema.Attribute.Required;
+    initialRange: Schema.Attribute.BigInteger &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: '0';
+        },
+        string
+      >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::contability.contability'
+    > &
+      Schema.Attribute.Private;
+    plan: Schema.Attribute.Relation<'oneToOne', 'api::plan.plan'>;
+    printTemplate: Schema.Attribute.Enumeration<['F1', 'F2', 'F3', 'F4']> &
+      Schema.Attribute.DefaultTo<'F1'>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    users_permissions_user: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
+export interface ApiInvoiceInvoice extends Struct.CollectionTypeSchema {
+  collectionName: 'invoices';
+  info: {
+    displayName: 'Invoice';
+    pluralName: 'invoices';
+    singularName: 'invoice';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    attach: Schema.Attribute.Media<'images' | 'files'>;
+    cai: Schema.Attribute.String & Schema.Attribute.Required;
+    cancelInfo: Schema.Attribute.String;
+    company: Schema.Attribute.Relation<'oneToOne', 'api::company.company'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    currentState: Schema.Attribute.Enumeration<
+      ['PAGADO', 'PENDIENTE', 'CANCELADO']
+    > &
+      Schema.Attribute.DefaultTo<'PAGADO'>;
+    customer: Schema.Attribute.String & Schema.Attribute.DefaultTo<'CF'>;
+    date: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    dateline: Schema.Attribute.Date & Schema.Attribute.Required;
+    detailInvoice: Schema.Attribute.Component<'details.invoice-detail', true> &
+      Schema.Attribute.Required;
+    identifier: Schema.Attribute.BigInteger & Schema.Attribute.Required;
+    initialCode: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::invoice.invoice'
+    > &
+      Schema.Attribute.Private;
+    notes: Schema.Attribute.Text;
+    publishedAt: Schema.Attribute.DateTime;
+    rtnCustomer: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 14;
+        minLength: 14;
+      }>;
+    subtotal: Schema.Attribute.Decimal;
+    total: Schema.Attribute.Decimal;
+    totalDiscount: Schema.Attribute.Decimal;
+    totalTax: Schema.Attribute.Decimal;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiPlanPlan extends Struct.CollectionTypeSchema {
+  collectionName: 'plans';
+  info: {
+    displayName: 'plan';
+    pluralName: 'plans';
+    singularName: 'plan';
   };
   options: {
     draftAndPublish: false;
@@ -473,10 +670,13 @@ export interface ApiNewNew extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    FIELD: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::new.new'> &
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::plan.plan'> &
       Schema.Attribute.Private;
+    maxBranches: Schema.Attribute.Integer;
+    maxInvoices: Schema.Attribute.Integer;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    price: Schema.Attribute.Decimal & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -1001,6 +1201,7 @@ export interface PluginUsersPermissionsUser
       'plugin::users-permissions.user'
     > &
       Schema.Attribute.Private;
+    name: Schema.Attribute.String;
     password: Schema.Attribute.Password &
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{
@@ -1037,7 +1238,11 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::audit.audit': ApiAuditAudit;
-      'api::new.new': ApiNewNew;
+      'api::branch.branch': ApiBranchBranch;
+      'api::company.company': ApiCompanyCompany;
+      'api::contability.contability': ApiContabilityContability;
+      'api::invoice.invoice': ApiInvoiceInvoice;
+      'api::plan.plan': ApiPlanPlan;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

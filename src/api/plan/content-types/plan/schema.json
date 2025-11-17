@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "plans",
+  "info": {
+    "singularName": "plan",
+    "pluralName": "plans",
+    "displayName": "plan"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "maxInvoices": {
+      "type": "integer"
+    },
+    "maxBranches": {
+      "type": "integer"
+    },
+    "price": {
+      "type": "decimal",
+      "required": true
+    }
+  }
+}
