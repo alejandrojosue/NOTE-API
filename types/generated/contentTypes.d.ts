@@ -508,7 +508,7 @@ export interface ApiConfigContableConfigContable
   extends Struct.CollectionTypeSchema {
   collectionName: 'config_contables';
   info: {
-    displayName: 'ConfigContable';
+    displayName: 'Configuraciones contables';
     pluralName: 'config-contables';
     singularName: 'config-contable';
   };
@@ -523,10 +523,6 @@ export interface ApiConfigContableConfigContable
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     fechaLimite: Schema.Attribute.Date & Schema.Attribute.Required;
-    Historial: Schema.Attribute.Component<
-      'detalle.historico-config-contable',
-      true
-    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -542,20 +538,80 @@ export interface ApiConfigContableConfigContable
         maxLength: 14;
         minLength: 14;
       }>;
+    sucursale: Schema.Attribute.Relation<'oneToOne', 'api::sucursal.sucursal'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    users_permissions_user: Schema.Attribute.Relation<
-      'oneToOne',
-      'plugin::users-permissions.user'
-    >;
+  };
+}
+
+export interface ApiDetalleFacturaDetalleFactura
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'detalle_facturas';
+  info: {
+    displayName: 'Detalles de Factura';
+    pluralName: 'detalle-facturas';
+    singularName: 'detalle-factura';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    cantidad: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    descuentoValor: Schema.Attribute.Decimal &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    factura: Schema.Attribute.Relation<'oneToOne', 'api::factura.factura'> &
+      Schema.Attribute.Required;
+    isv: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::detalle-factura.detalle-factura'
+    > &
+      Schema.Attribute.Private;
+    precio: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    producto: Schema.Attribute.Relation<'oneToOne', 'api::producto.producto'> &
+      Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
 export interface ApiEmpresaEmpresa extends Struct.CollectionTypeSchema {
   collectionName: 'empresas';
   info: {
-    displayName: 'Empresa';
+    displayName: 'Empresas';
     pluralName: 'empresas';
     singularName: 'empresa';
   };
@@ -592,15 +648,14 @@ export interface ApiEmpresaEmpresa extends Struct.CollectionTypeSchema {
     users_permissions_user: Schema.Attribute.Relation<
       'oneToOne',
       'plugin::users-permissions.user'
-    > &
-      Schema.Attribute.Required;
+    >;
   };
 }
 
 export interface ApiFacturaFactura extends Struct.CollectionTypeSchema {
   collectionName: 'facturas';
   info: {
-    displayName: 'Factura';
+    displayName: 'Facturas';
     pluralName: 'facturas';
     singularName: 'factura';
   };
@@ -629,7 +684,6 @@ export interface ApiFacturaFactura extends Struct.CollectionTypeSchema {
     noFactura: Schema.Attribute.BigInteger;
     nombreCliente: Schema.Attribute.String & Schema.Attribute.DefaultTo<'CF'>;
     noSAG: Schema.Attribute.String;
-    Productos: Schema.Attribute.Component<'detalle.detalle-factura', true>;
     publishedAt: Schema.Attribute.DateTime;
     rtnCliente: Schema.Attribute.String &
       Schema.Attribute.SetMinMaxLength<{
@@ -669,11 +723,45 @@ export interface ApiFacturaFactura extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiHitoricoConfContableHitoricoConfContable
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'hitorico_conf_contables';
+  info: {
+    displayName: 'HitoricoConfContable';
+    pluralName: 'hitorico-conf-contables';
+    singularName: 'hitorico-conf-contable';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    configuraciones_contable: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::config-contable.config-contable'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    dataAnterior: Schema.Attribute.JSON & Schema.Attribute.Required;
+    dataNueva: Schema.Attribute.JSON & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::hitorico-conf-contable.hitorico-conf-contable'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiInventarioMovimientoInventarioMovimiento
   extends Struct.CollectionTypeSchema {
   collectionName: 'inventario_movimientos';
   info: {
-    displayName: 'InventarioMovimiento';
+    displayName: 'Movimientos de inventarios';
     pluralName: 'inventario-movimientos';
     singularName: 'inventario-movimiento';
   };
@@ -719,7 +807,7 @@ export interface ApiInventarioMovimientoInventarioMovimiento
 export interface ApiInventarioInventario extends Struct.CollectionTypeSchema {
   collectionName: 'inventarios';
   info: {
-    displayName: 'Inventario';
+    displayName: 'Inventarios';
     pluralName: 'inventarios';
     singularName: 'inventario';
   };
@@ -759,7 +847,7 @@ export interface ApiInventarioInventario extends Struct.CollectionTypeSchema {
 export interface ApiPlanPlan extends Struct.CollectionTypeSchema {
   collectionName: 'plans';
   info: {
-    displayName: 'Plan';
+    displayName: 'Planes/Suscripciones';
     pluralName: 'plans';
     singularName: 'plan';
   };
@@ -787,7 +875,7 @@ export interface ApiPlanPlan extends Struct.CollectionTypeSchema {
 export interface ApiProductoProducto extends Struct.CollectionTypeSchema {
   collectionName: 'productos';
   info: {
-    displayName: 'Producto';
+    displayName: 'Productos';
     pluralName: 'productos';
     singularName: 'producto';
   };
@@ -842,7 +930,7 @@ export interface ApiProductoProducto extends Struct.CollectionTypeSchema {
 export interface ApiSucursalSucursal extends Struct.CollectionTypeSchema {
   collectionName: 'sucursals';
   info: {
-    displayName: 'Sucursal';
+    displayName: 'Sucursales';
     pluralName: 'sucursals';
     singularName: 'sucursal';
   };
@@ -851,6 +939,10 @@ export interface ApiSucursalSucursal extends Struct.CollectionTypeSchema {
   };
   attributes: {
     activa: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    config_contable: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::config-contable.config-contable'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1373,10 +1465,6 @@ export interface PluginUsersPermissionsUser
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    config_contable: Schema.Attribute.Relation<
-      'oneToOne',
-      'api::config-contable.config-contable'
-    >;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     createdAt: Schema.Attribute.DateTime;
@@ -1434,8 +1522,10 @@ declare module '@strapi/strapi' {
       'api::audit.audit': ApiAuditAudit;
       'api::cci.cci': ApiCciCci;
       'api::config-contable.config-contable': ApiConfigContableConfigContable;
+      'api::detalle-factura.detalle-factura': ApiDetalleFacturaDetalleFactura;
       'api::empresa.empresa': ApiEmpresaEmpresa;
       'api::factura.factura': ApiFacturaFactura;
+      'api::hitorico-conf-contable.hitorico-conf-contable': ApiHitoricoConfContableHitoricoConfContable;
       'api::inventario-movimiento.inventario-movimiento': ApiInventarioMovimientoInventarioMovimiento;
       'api::inventario.inventario': ApiInventarioInventario;
       'api::plan.plan': ApiPlanPlan;

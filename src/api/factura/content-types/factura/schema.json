@@ -4,7 +4,7 @@
   "info": {
     "singularName": "factura",
     "pluralName": "facturas",
-    "displayName": "Factura"
+    "displayName": "Facturas"
   },
   "options": {
     "draftAndPublish": false
@@ -86,11 +86,6 @@
     },
     "noSAG": {
       "type": "string"
-    },
-    "Productos": {
-      "type": "component",
-      "component": "detalle.detalle-factura",
-      "repeatable": true
     }
   }
 }

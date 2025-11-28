@@ -4,7 +4,7 @@
   "info": {
     "singularName": "plan",
     "pluralName": "plans",
-    "displayName": "Plan"
+    "displayName": "Planes/Suscripciones"
   },
   "options": {
     "draftAndPublish": false

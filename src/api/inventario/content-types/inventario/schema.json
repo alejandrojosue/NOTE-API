@@ -4,7 +4,7 @@
   "info": {
     "singularName": "inventario",
     "pluralName": "inventarios",
-    "displayName": "Inventario"
+    "displayName": "Inventarios"
   },
   "options": {
     "draftAndPublish": false

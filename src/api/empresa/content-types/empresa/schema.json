@@ -4,7 +4,7 @@
   "info": {
     "singularName": "empresa",
     "pluralName": "empresas",
-    "displayName": "Empresa"
+    "displayName": "Empresas"
   },
   "options": {
     "draftAndPublish": false
@@ -50,8 +50,7 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user",
-      "mappedBy": "empresa",
-      "required": true
+      "mappedBy": "empresa"
     }
   }
 }

@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "detalle_facturas",
+  "info": {
+    "singularName": "detalle-factura",
+    "pluralName": "detalle-facturas",
+    "displayName": "Detalles de Factura"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "factura": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::factura.factura",
+      "required": true
+    },
+    "producto": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::producto.producto",
+      "required": true
+    },
+    "cantidad": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "isv": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "precio": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "descuentoValor": {
+      "type": "decimal",
+      "required": false,
+      "min": 0
+    }
+  }
+}

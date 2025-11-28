@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "hitorico_conf_contables",
+  "info": {
+    "singularName": "hitorico-conf-contable",
+    "pluralName": "hitorico-conf-contables",
+    "displayName": "HitoricoConfContable"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "configuraciones_contable": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::config-contable.config-contable"
+    },
+    "dataAnterior": {
+      "type": "json",
+      "required": true
+    },
+    "dataNueva": {
+      "type": "json",
+      "required": true
+    }
+  }
+}

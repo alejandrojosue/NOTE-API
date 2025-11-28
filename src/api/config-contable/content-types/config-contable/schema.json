@@ -4,7 +4,7 @@
   "info": {
     "singularName": "config-contable",
     "pluralName": "config-contables",
-    "displayName": "ConfigContable"
+    "displayName": "Configuraciones contables"
   },
   "options": {
     "draftAndPublish": false
@@ -32,12 +32,6 @@
       "type": "string",
       "required": true
     },
-    "users_permissions_user": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "plugin::users-permissions.user",
-      "mappedBy": "config_contable"
-    },
     "correlativoActual": {
       "type": "biginteger"
     },
@@ -45,10 +39,11 @@
       "type": "string",
       "required": true
     },
-    "Historial": {
-      "type": "component",
-      "component": "detalle.historico-config-contable",
-      "repeatable": true
+    "sucursale": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::sucursal.sucursal",
+      "inversedBy": "config_contable"
     }
   }
 }

@@ -4,7 +4,7 @@
   "info": {
     "singularName": "sucursal",
     "pluralName": "sucursals",
-    "displayName": "Sucursal"
+    "displayName": "Sucursales"
   },
   "options": {
     "draftAndPublish": false
@@ -33,6 +33,12 @@
     "activa": {
       "type": "boolean",
       "default": true
+    },
+    "config_contable": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::config-contable.config-contable",
+      "mappedBy": "sucursale"
     }
   }
 }

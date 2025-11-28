@@ -3,6 +3,7 @@
  */
 
 import { factories } from '@strapi/strapi';
+import { CustomError } from '../../../utils/CustomError';
 
 export default factories.createCoreService('api::factura.factura', ({ strapi }) => ({
 
@@ -10,23 +11,19 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
     return await strapi.db.transaction(async () => {
 
       // ==========================================================
-      // 0️⃣ VALIDAR CONFIGURACIÓN CONTABLE DEL USUARIO
+      // 0️⃣ VALIDAR SUCURSAL
       // ==========================================================
 
-      if (!data.usuario) {
-        throw new Error("El usuario es requerido para generar una factura.");
-      }
-
-      const usuario = await strapi.db.query('plugin::users-permissions.user').findOne({
-        where: { id: data.usuario, blocked: false, confirmed: true },
+       const sucursal = await strapi.db.query('api::sucursal.sucursal').findOne({
+        where: { id: data.sucursal, activa: true },
         populate: { config_contable: true },
       });
 
-      if (!usuario || !usuario.config_contable) {
-        throw new Error("El usuario no tiene una configuración contable asignada.");
+      if (!sucursal || !sucursal.config_contable) {
+        throw new CustomError(`Configuración contable no encontrada para la sucursal seleccionada.`);
       }
 
-      const configContable = usuario.config_contable;
+      const configContable = sucursal.config_contable;
 
       // 0.1️⃣ Validar que la fecha actual no exceda el límite permitido
       const hoy = new Date();
@@ -36,7 +33,7 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
       fechaLimiteConfig.setHours(0, 0, 0, 0);
 
       if (hoy > fechaLimiteConfig) {
-        throw new Error("La fecha actual excede la fecha límite permitida para facturar." + hoy + "|" + fechaLimiteConfig);
+        throw new CustomError("La fecha actual excede la fecha límite permitida para facturar." + hoy + "|" + fechaLimiteConfig);
       }
 
       // ==========================================================
@@ -61,7 +58,7 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
 
         // Verificar límite máximo del rango permitido
         if (correlativo > configContable.rangoFinal) {
-          throw new Error(
+          throw new CustomError(
             "Se ha excedido el límite de facturas, por favor contactarse con el contador de la empresa."
           );
         }
@@ -69,27 +66,32 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
 
       // Asegurar que nunca sea menor al rango Inicial
       if (correlativo < configContable.rangoInicial || correlativo <= 0) {
-        throw new Error('Correlativo de factura inválido según la configuración contable.');
+        throw new CustomError('Correlativo de factura inválido según la configuración contable.');
       }
 
       // ==========================================================
-      // 2️⃣ VALIDAR SUCURSAL
+      // 2️⃣ VALIDAR CONFIGURACIÓN CONTABLE DEL USUARIO
       // ==========================================================
-      if(!data.empresa) throw new Error("La empresa es requerida para generar una factura.");
+      if (!data.usuario) {
+        throw new CustomError("El usuario es requerido para generar una factura.");
+      }
 
-      const sucursal = await strapi.db.query('api::sucursal.sucursal').findOne({
-        where: { id: data.sucursal, activa: true },
+      const usuario = await strapi.db.query('plugin::users-permissions.user').findOne({
+        where: { id: data.usuario, blocked: false, confirmed: true },
       });
 
-      if (!sucursal) {
-        throw new Error(
-          `Sucursal con ID ${data.sucursal} no existe, no pertenece a la empresa o no está activa.`
-        );
+      if (!usuario) {
+        throw new CustomError("El usuario no tiene una configuración contable asignada.");
       }
+
+      if(!data.empresa) throw new CustomError("La empresa es requerida para generar una factura.");
 
       // ==========================================================
       // 3️⃣ VALIDAR PRODUCTOS
       // ==========================================================
+      if(!data.Productos || data.Productos.length === 0) {
+        throw new CustomError("La factura debe contener al menos un producto.");
+      }
 
       for (const detalle of data.Productos) {
         const productoExistente = await strapi.db.query('api::producto.producto').findOne({
@@ -97,14 +99,14 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
         });
 
         if (!productoExistente) {
-          throw new Error(`Producto con ID ${detalle.producto} no existe o ha sido eliminado.`);
+          throw new CustomError(`Uno de los productos ingresados no existe o ha sido eliminado.`);
         }
+        detalle.precioCompra = productoExistente.precioCompra;
       }
 
       // ==========================================================
       // 4️⃣ CREAR LA FACTURA
       // ==========================================================
-
       const factura = await strapi.db.query('api::factura.factura').create({
         data: {
           noFactura: correlativo,
@@ -123,50 +125,63 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
           noConstRegExonerado: data.noConstRegExonerado,
           noSAG: data.noSAG,
           adjunto: data.adjunto,
-          Productos: data.Productos
         },
       });
-
+      console.log("Factura creada:", factura.id);
+      for (const detalle of data.Productos) {
+        await strapi.db.query('api::detalle-factura.detalle-factura').create({
+          data: {
+            factura: { connect: { id: factura.id } },
+            producto: { connect: { id: detalle.producto } },
+            cantidad: detalle.cantidad,
+            precio: detalle.precio,
+            isv: detalle.isv,
+            descuentoValor: detalle.descuentoValor || 0,
+          },
+        });
+      }
+      
       // ==========================================================
       // 5️⃣ CREAR MOVIMIENTOS DE INVENTARIO Y ACTUALIZAR EXISTENCIAS
       // ==========================================================
 
       for (const detalle of data.Productos) {
-        // const inventario = await strapi.db.query('api::inventario.inventario').findOne({
-        //   where: {
-        //     producto: detalle.producto,
-        //     empresa: data.empresa,
-        //     sucursal: data.sucursal,
-        //   },
-        // });
-        const inventario = null
+        const inventario = await strapi.db.query('api::inventario.inventario').findOne({
+          where: {
+            producto: detalle.producto,
+            empresa: data.empresa,
+            sucursal: data.sucursal,
+          },
+        });
         if (!inventario) {
-          throw new Error(
-            `Inventario no encontrado para el producto ${detalle.producto} en la sucursal ${data.sucursal}.`
+          throw new CustomError(
+            `Uno de los productos no fue encontrado, por favor revise el inventario de la sucursal.`
           );
         }
 
         const nuevaExistencia = inventario.existencia - detalle.cantidad;
         if (nuevaExistencia < 0) {
-          throw new Error(
-            `Inventario insuficiente para el producto ${detalle.producto} en la sucursal ${data.sucursal}.`
+          throw new CustomError(
+            `Uno de los productos no cuenta con suficiente existencia, por favor revise el inventario de la sucursal.`
           );
         }
-
+        // Crear movimiento de inventario
         await strapi.db.query('api::inventario-movimiento.inventario-movimiento').create({
           data: {
-            producto: detalle.producto,
-            empresa: data.empresa,
-            sucursal: data.sucursal,
-            usuario: data.usuario,
+            producto: { connect: { id: detalle.producto } },
+            empresa: { connect: { id: data.empresa } },
+            sucursal: { connect: { id: data.sucursal } },
+            users_permissions_user: { connect: { id: data.usuario } },
             cantidad: detalle.cantidad,
             tipoMovimiento: 'SALIDA',
-            comentario: `Venta: factura #${correlativo}`,
-            precioCompra: inventario.precioCompra,
+            comentario: `Venta factura #${correlativo}`,
+            precioCompra: detalle.precioCompra,
             precioVenta: detalle.precio,
           },
         });
 
+
+        // Actualizar inventario
         await strapi.db.query('api::inventario.inventario').update({
           where: { id: inventario.id },
           data: { existencia: nuevaExistencia },

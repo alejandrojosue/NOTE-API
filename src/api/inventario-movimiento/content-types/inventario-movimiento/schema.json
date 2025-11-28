@@ -4,7 +4,7 @@
   "info": {
     "singularName": "inventario-movimiento",
     "pluralName": "inventario-movimientos",
-    "displayName": "InventarioMovimiento"
+    "displayName": "Movimientos de inventarios"
   },
   "options": {
     "draftAndPublish": false
