@@ -41,17 +41,19 @@
       "type": "boolean",
       "default": true
     },
+    "exento": {
+      "type": "boolean",
+      "default": false
+    },
     "empresa": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::empresa.empresa",
-      "required": true
+      "target": "api::empresa.empresa"
     },
     "users_permissions_user": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "plugin::users-permissions.user",
-      "required": true
+      "target": "plugin::users-permissions.user"
     }
   }
 }

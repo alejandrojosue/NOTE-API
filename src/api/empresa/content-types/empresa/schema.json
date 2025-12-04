@@ -50,7 +50,7 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user",
-      "mappedBy": "empresa"
+      "required": true
     }
   }
 }

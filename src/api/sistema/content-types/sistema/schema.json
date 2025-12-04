@@ -1,0 +1,19 @@
+{
+  "kind": "singleType",
+  "collectionName": "sistemas",
+  "info": {
+    "singularName": "sistema",
+    "pluralName": "sistemas",
+    "displayName": "sistema"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "version": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

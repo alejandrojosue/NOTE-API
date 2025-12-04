@@ -4,7 +4,8 @@
   "info": {
     "singularName": "hitorico-conf-contable",
     "pluralName": "hitorico-conf-contables",
-    "displayName": "HitoricoConfContable"
+    "displayName": "Histórico de cambios configuración contable",
+    "description": "Registra los cambios realizados en la configuración contable"
   },
   "options": {
     "draftAndPublish": false

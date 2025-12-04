@@ -5,6 +5,7 @@
 import documentation from "@strapi/plugin-documentation/strapi-admin";
 import usersPermissions from "@strapi/plugin-users-permissions/strapi-admin";
 import logz from "strapi-plugin-logz/strapi-admin";
+import qrCode from "strapi-plugin-qr-code/strapi-admin";
 import { renderAdmin } from "@strapi/strapi/admin";
 
 import customisations from "../../src/admin/app.tsx";
@@ -16,5 +17,6 @@ renderAdmin(document.getElementById("strapi"), {
     documentation: documentation,
     "users-permissions": usersPermissions,
     logz: logz,
+    "qr-code": qrCode,
   },
 });

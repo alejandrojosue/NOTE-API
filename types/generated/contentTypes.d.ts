@@ -430,35 +430,6 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiAuditAudit extends Struct.CollectionTypeSchema {
-  collectionName: 'audits';
-  info: {
-    displayName: 'Audit';
-    pluralName: 'audits';
-    singularName: 'audit';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    action: Schema.Attribute.Enumeration<['POST', 'PUT', 'DELETE']> &
-      Schema.Attribute.Required;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::audit.audit'> &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    table_name: Schema.Attribute.String & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    username: Schema.Attribute.String;
-  };
-}
-
 export interface ApiCciCci extends Struct.CollectionTypeSchema {
   collectionName: 'ccis';
   info: {
@@ -648,7 +619,8 @@ export interface ApiEmpresaEmpresa extends Struct.CollectionTypeSchema {
     users_permissions_user: Schema.Attribute.Relation<
       'oneToOne',
       'plugin::users-permissions.user'
-    >;
+    > &
+      Schema.Attribute.Required;
   };
 }
 
@@ -669,6 +641,7 @@ export interface ApiFacturaFactura extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    empresa: Schema.Attribute.Relation<'oneToOne', 'api::empresa.empresa'>;
     estado: Schema.Attribute.Enumeration<['PAGADO', 'PENDIENTE', 'CANCELADO']> &
       Schema.Attribute.DefaultTo<'PAGADO'>;
     fechaLimite: Schema.Attribute.Date;
@@ -699,6 +672,7 @@ export interface ApiFacturaFactura extends Struct.CollectionTypeSchema {
         },
         number
       >;
+    sucursal: Schema.Attribute.Relation<'oneToOne', 'api::sucursal.sucursal'>;
     total: Schema.Attribute.Decimal &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
@@ -720,6 +694,10 @@ export interface ApiFacturaFactura extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    users_permissions_user: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
   };
 }
 
@@ -727,7 +705,8 @@ export interface ApiHitoricoConfContableHitoricoConfContable
   extends Struct.CollectionTypeSchema {
   collectionName: 'hitorico_conf_contables';
   info: {
-    displayName: 'HitoricoConfContable';
+    description: 'Registra los cambios realizados en la configuraci\u00F3n contable';
+    displayName: 'Hist\u00F3rico de cambios configuraci\u00F3n contable';
     pluralName: 'hitorico-conf-contables';
     singularName: 'hitorico-conf-contable';
   };
@@ -888,8 +867,8 @@ export interface ApiProductoProducto extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    empresa: Schema.Attribute.Relation<'oneToOne', 'api::empresa.empresa'> &
-      Schema.Attribute.Required;
+    empresa: Schema.Attribute.Relation<'oneToOne', 'api::empresa.empresa'>;
+    exento: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     existencia: Schema.Attribute.Integer & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -922,8 +901,35 @@ export interface ApiProductoProducto extends Struct.CollectionTypeSchema {
     users_permissions_user: Schema.Attribute.Relation<
       'oneToOne',
       'plugin::users-permissions.user'
+    >;
+  };
+}
+
+export interface ApiSistemaSistema extends Struct.SingleTypeSchema {
+  collectionName: 'sistemas';
+  info: {
+    displayName: 'sistema';
+    pluralName: 'sistemas';
+    singularName: 'sistema';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::sistema.sistema'
     > &
-      Schema.Attribute.Required;
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    version: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -1475,7 +1481,6 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
-    empresa: Schema.Attribute.Relation<'oneToOne', 'api::empresa.empresa'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -1519,7 +1524,6 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
-      'api::audit.audit': ApiAuditAudit;
       'api::cci.cci': ApiCciCci;
       'api::config-contable.config-contable': ApiConfigContableConfigContable;
       'api::detalle-factura.detalle-factura': ApiDetalleFacturaDetalleFactura;
@@ -1530,6 +1534,7 @@ declare module '@strapi/strapi' {
       'api::inventario.inventario': ApiInventarioInventario;
       'api::plan.plan': ApiPlanPlan;
       'api::producto.producto': ApiProductoProducto;
+      'api::sistema.sistema': ApiSistemaSistema;
       'api::sucursal.sucursal': ApiSucursalSucursal;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

@@ -125,9 +125,12 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
           noConstRegExonerado: data.noConstRegExonerado,
           noSAG: data.noSAG,
           adjunto: data.adjunto,
+          users_permissions_user: { connect: { id: data.usuario } },
+          empresa: { connect: { id: data.empresa } },
+          sucursal: { connect: { id: data.sucursal } },
         },
       });
-      console.log("Factura creada:", factura.id);
+      
       for (const detalle of data.Productos) {
         await strapi.db.query('api::detalle-factura.detalle-factura').create({
           data: {
