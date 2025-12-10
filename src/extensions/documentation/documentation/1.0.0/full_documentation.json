@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2025-12-04T03:54:11.268Z"
+    "x-generation-date": "2025-12-10T06:59:00.949Z"
   },
   "x-strapi-config": {
     "plugins": [
@@ -9443,6 +9443,12 @@
                             "type": "number",
                             "format": "float"
                           },
+                          "maxProductos": {
+                            "type": "integer"
+                          },
+                          "activo": {
+                            "type": "boolean"
+                          },
                           "createdAt": {
                             "type": "string",
                             "format": "date-time"
@@ -9840,8 +9846,6 @@
         "properties": {
           "data": {
             "required": [
-              "factura",
-              "producto",
               "cantidad",
               "isv",
               "precio"
@@ -9883,6 +9887,10 @@
                 "format": "float"
               },
               "descuentoValor": {
+                "type": "number",
+                "format": "float"
+              },
+              "precioCompra": {
                 "type": "number",
                 "format": "float"
               },
@@ -9945,8 +9953,6 @@
       "DetalleFactura": {
         "type": "object",
         "required": [
-          "factura",
-          "producto",
           "cantidad",
           "isv",
           "precio"
@@ -10004,15 +10010,15 @@
                 "type": "number",
                 "format": "float"
               },
-              "total": {
-                "type": "number",
-                "format": "float"
-              },
               "totalExento": {
                 "type": "number",
                 "format": "float"
               },
               "totalExonerado": {
+                "type": "number",
+                "format": "float"
+              },
+              "total": {
                 "type": "number",
                 "format": "float"
               },
@@ -10854,6 +10860,12 @@
                         "type": "number",
                         "format": "float"
                       },
+                      "maxProductos": {
+                        "type": "integer"
+                      },
+                      "activo": {
+                        "type": "boolean"
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -11373,6 +11385,10 @@
                   }
                 }
               },
+              "valorGanancia": {
+                "type": "number",
+                "format": "float"
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
@@ -11451,9 +11467,6 @@
               "precioVenta": {
                 "type": "number",
                 "format": "float"
-              },
-              "existencia": {
-                "type": "integer"
               },
               "activo": {
                 "type": "boolean"
@@ -11552,6 +11565,10 @@
             "type": "number",
             "format": "float"
           },
+          "precioCompra": {
+            "type": "number",
+            "format": "float"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -11635,6 +11652,10 @@
                   "format": "float"
                 },
                 "descuentoValor": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "precioCompra": {
                   "type": "number",
                   "format": "float"
                 },
@@ -12675,6 +12696,12 @@
                     "type": "number",
                     "format": "float"
                   },
+                  "maxProductos": {
+                    "type": "integer"
+                  },
+                  "activo": {
+                    "type": "boolean"
+                  },
                   "createdAt": {
                     "type": "string",
                     "format": "date-time"
@@ -13109,15 +13136,15 @@
                 "type": "number",
                 "format": "float"
               },
-              "total": {
-                "type": "number",
-                "format": "float"
-              },
               "totalExento": {
                 "type": "number",
                 "format": "float"
               },
               "totalExonerado": {
+                "type": "number",
+                "format": "float"
+              },
+              "total": {
                 "type": "number",
                 "format": "float"
               },
@@ -13184,6 +13211,10 @@
                   }
                 ],
                 "example": "string or id"
+              },
+              "valorGanancia": {
+                "type": "number",
+                "format": "float"
               },
               "locale": {
                 "type": "string"
@@ -13292,15 +13323,15 @@
             "type": "number",
             "format": "float"
           },
-          "total": {
-            "type": "number",
-            "format": "float"
-          },
           "totalExento": {
             "type": "number",
             "format": "float"
           },
           "totalExonerado": {
+            "type": "number",
+            "format": "float"
+          },
+          "total": {
             "type": "number",
             "format": "float"
           },
@@ -14142,6 +14173,12 @@
                     "type": "number",
                     "format": "float"
                   },
+                  "maxProductos": {
+                    "type": "integer"
+                  },
+                  "activo": {
+                    "type": "boolean"
+                  },
                   "createdAt": {
                     "type": "string",
                     "format": "date-time"
@@ -14661,6 +14698,10 @@
               }
             }
           },
+          "valorGanancia": {
+            "type": "number",
+            "format": "float"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -14746,15 +14787,15 @@
                   "type": "number",
                   "format": "float"
                 },
-                "total": {
-                  "type": "number",
-                  "format": "float"
-                },
                 "totalExento": {
                   "type": "number",
                   "format": "float"
                 },
                 "totalExonerado": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "total": {
                   "type": "number",
                   "format": "float"
                 },
@@ -14939,6 +14980,10 @@
                       "type": "string"
                     }
                   }
+                },
+                "valorGanancia": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "createdAt": {
                   "type": "string",
@@ -16000,6 +16045,12 @@
                                 "type": "number",
                                 "format": "float"
                               },
+                              "maxProductos": {
+                                "type": "integer"
+                              },
+                              "activo": {
+                                "type": "boolean"
+                              },
                               "createdAt": {
                                 "type": "string",
                                 "format": "date-time"
@@ -16582,9 +16633,6 @@
               "precioVenta": {
                 "type": "number",
                 "format": "float"
-              },
-              "existencia": {
-                "type": "integer"
               },
               "activo": {
                 "type": "boolean"
@@ -17440,6 +17488,12 @@
                           "precio": {
                             "type": "number",
                             "format": "float"
+                          },
+                          "maxProductos": {
+                            "type": "integer"
+                          },
+                          "activo": {
+                            "type": "boolean"
                           },
                           "createdAt": {
                             "type": "string",
@@ -18237,9 +18291,6 @@
                 "type": "number",
                 "format": "float"
               },
-              "existencia": {
-                "type": "integer"
-              },
               "activo": {
                 "type": "boolean"
               },
@@ -19095,6 +19146,12 @@
                             "type": "number",
                             "format": "float"
                           },
+                          "maxProductos": {
+                            "type": "integer"
+                          },
+                          "activo": {
+                            "type": "boolean"
+                          },
                           "createdAt": {
                             "type": "string",
                             "format": "date-time"
@@ -19743,7 +19800,10 @@
           "data": {
             "required": [
               "nombre",
-              "precio"
+              "maxFacturas",
+              "maxSucursales",
+              "precio",
+              "maxProductos"
             ],
             "type": "object",
             "properties": {
@@ -19759,6 +19819,12 @@
               "precio": {
                 "type": "number",
                 "format": "float"
+              },
+              "maxProductos": {
+                "type": "integer"
+              },
+              "activo": {
+                "type": "boolean"
               },
               "locale": {
                 "type": "string"
@@ -19820,7 +19886,10 @@
         "type": "object",
         "required": [
           "nombre",
-          "precio"
+          "maxFacturas",
+          "maxSucursales",
+          "precio",
+          "maxProductos"
         ],
         "properties": {
           "id": {
@@ -19841,6 +19910,12 @@
           "precio": {
             "type": "number",
             "format": "float"
+          },
+          "maxProductos": {
+            "type": "integer"
+          },
+          "activo": {
+            "type": "boolean"
           },
           "createdAt": {
             "type": "string",
@@ -20155,6 +20230,12 @@
                   "type": "number",
                   "format": "float"
                 },
+                "maxProductos": {
+                  "type": "integer"
+                },
+                "activo": {
+                  "type": "boolean"
+                },
                 "createdAt": {
                   "type": "string",
                   "format": "date-time"
@@ -20233,8 +20314,7 @@
               "codigo",
               "nombre",
               "precioCompra",
-              "precioVenta",
-              "existencia"
+              "precioVenta"
             ],
             "type": "object",
             "properties": {
@@ -20254,9 +20334,6 @@
               "precioVenta": {
                 "type": "number",
                 "format": "float"
-              },
-              "existencia": {
-                "type": "integer"
               },
               "activo": {
                 "type": "boolean"
@@ -20348,8 +20425,7 @@
           "codigo",
           "nombre",
           "precioCompra",
-          "precioVenta",
-          "existencia"
+          "precioVenta"
         ],
         "properties": {
           "id": {
@@ -20374,9 +20450,6 @@
           "precioVenta": {
             "type": "number",
             "format": "float"
-          },
-          "existencia": {
-            "type": "integer"
           },
           "activo": {
             "type": "boolean"
@@ -21233,6 +21306,12 @@
                         "type": "number",
                         "format": "float"
                       },
+                      "maxProductos": {
+                        "type": "integer"
+                      },
+                      "activo": {
+                        "type": "boolean"
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -21467,9 +21546,6 @@
                 "precioVenta": {
                   "type": "number",
                   "format": "float"
-                },
-                "existencia": {
-                  "type": "integer"
                 },
                 "activo": {
                   "type": "boolean"
@@ -22992,6 +23068,12 @@
                       "precio": {
                         "type": "number",
                         "format": "float"
+                      },
+                      "maxProductos": {
+                        "type": "integer"
+                      },
+                      "activo": {
+                        "type": "boolean"
                       },
                       "createdAt": {
                         "type": "string",

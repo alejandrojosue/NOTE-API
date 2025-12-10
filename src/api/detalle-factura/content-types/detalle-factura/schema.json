@@ -14,14 +14,12 @@
     "factura": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::factura.factura",
-      "required": true
+      "target": "api::factura.factura"
     },
     "producto": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::producto.producto",
-      "required": true
+      "target": "api::producto.producto"
     },
     "cantidad": {
       "type": "decimal",
@@ -42,6 +40,9 @@
       "type": "decimal",
       "required": false,
       "min": 0
+    },
+    "precioCompra": {
+      "type": "decimal"
     }
   }
 }

@@ -10,10 +10,6 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
   async createVenta(data) {
     return await strapi.db.transaction(async () => {
 
-      // ==========================================================
-      // 0️⃣ VALIDAR SUCURSAL
-      // ==========================================================
-
        const sucursal = await strapi.db.query('api::sucursal.sucursal').findOne({
         where: { id: data.sucursal, activa: true },
         populate: { config_contable: true },
@@ -35,10 +31,6 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
       if (hoy > fechaLimiteConfig) {
         throw new CustomError("La fecha actual excede la fecha límite permitida para facturar." + hoy + "|" + fechaLimiteConfig);
       }
-
-      // ==========================================================
-      // 1️⃣ GENERAR NÚMERO DE FACTURA (CORRELATIVO)
-      // ==========================================================
 
       let correlativo = Number(configContable.correlativoActual) + 1;
       let correlativoValido = false;
@@ -69,9 +61,6 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
         throw new CustomError('Correlativo de factura inválido según la configuración contable.');
       }
 
-      // ==========================================================
-      // 2️⃣ VALIDAR CONFIGURACIÓN CONTABLE DEL USUARIO
-      // ==========================================================
       if (!data.usuario) {
         throw new CustomError("El usuario es requerido para generar una factura.");
       }
@@ -86,13 +75,12 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
 
       if(!data.empresa) throw new CustomError("La empresa es requerida para generar una factura.");
 
-      // ==========================================================
-      // 3️⃣ VALIDAR PRODUCTOS
-      // ==========================================================
       if(!data.Productos || data.Productos.length === 0) {
         throw new CustomError("La factura debe contener al menos un producto.");
       }
 
+      let gananciaFactura = 0
+      
       for (const detalle of data.Productos) {
         const productoExistente = await strapi.db.query('api::producto.producto').findOne({
           where: { id: detalle.producto, activo: true },
@@ -102,11 +90,11 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
           throw new CustomError(`Uno de los productos ingresados no existe o ha sido eliminado.`);
         }
         detalle.precioCompra = productoExistente.precioCompra;
+
+        const subtotal = (detalle.precio - detalle.precioCompra) * detalle.cantidad
+        gananciaFactura += subtotal - detalle.descuentoValor
       }
 
-      // ==========================================================
-      // 4️⃣ CREAR LA FACTURA
-      // ==========================================================
       const factura = await strapi.db.query('api::factura.factura').create({
         data: {
           noFactura: correlativo,
@@ -130,6 +118,7 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
           users_permissions_user: { connect: { id: data.usuario } },
           empresa: { connect: { id: data.empresa } },
           sucursal: { connect: { id: data.sucursal } },
+          valorGanancia: gananciaFactura
         },
       });
       
@@ -142,15 +131,13 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
             precio: detalle.precio,
             isv: detalle.isv,
             descuentoValor: detalle.descuentoValor || 0,
+            precioCompra: detalle.precioCompra || 0,
           },
         });
       }
-      
-      // ==========================================================
-      // 5️⃣ CREAR MOVIMIENTOS DE INVENTARIO Y ACTUALIZAR EXISTENCIAS
-      // ==========================================================
 
       for (const detalle of data.Productos) {
+        
         const inventario = await strapi.db.query('api::inventario.inventario').findOne({
           where: {
             producto: detalle.producto,
@@ -180,7 +167,7 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
             cantidad: detalle.cantidad,
             tipoMovimiento: 'SALIDA',
             comentario: `Venta factura #${correlativo}`,
-            precioCompra: detalle.precioCompra,
+            precioCompra: detalle.precioCompra || 0,
             precioVenta: detalle.precio,
           },
         });
@@ -193,18 +180,10 @@ export default factories.createCoreService('api::factura.factura', ({ strapi }) 
         });
       }
 
-      // ==========================================================
-      // 6️⃣ ACTUALIZAR CORRELATIVO DE CONFIGCONTABLE
-      // ==========================================================
-
       await strapi.db.query('api::config-contable.config-contable').update({
         where: { id: configContable.id },
         data: { correlativoActual: correlativo },
       });
-
-      // ==========================================================
-      // 7️⃣ RETORNAR FACTURA
-      // ==========================================================
 
       return factura;
     });

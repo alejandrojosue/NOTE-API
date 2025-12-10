@@ -53,16 +53,16 @@
     "totalDescuento": {
       "type": "decimal"
     },
-    "total": {
-      "type": "decimal",
-      "required": true,
-      "min": 0
-    },
     "totalExento": {
       "type": "decimal"
     },
     "totalExonerado": {
       "type": "decimal"
+    },
+    "total": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
     },
     "estado": {
       "type": "enumeration",
@@ -107,6 +107,10 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::sucursal.sucursal"
+    },
+    "valorGanancia": {
+      "type": "decimal",
+      "min": 0
     }
   }
 }

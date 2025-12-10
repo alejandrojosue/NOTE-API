@@ -5,6 +5,27 @@
 import { factories } from '@strapi/strapi';
 import { CustomError } from '../../../utils/CustomError';
 
+const getLast12MonthsRanges = (): Array<{month, firstDay, lastDay}> => {
+  const ranges = [];
+  const now = new Date();
+
+  for (let i = 0; i < 12; i++) {
+    const year = now.getFullYear();
+    const month = now.getMonth() - i;
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0, 23, 59, 59);
+
+    ranges.push({
+      month: firstDay.toLocaleString("es-HN", { month: "long", year: "numeric" }),
+      firstDay,
+      lastDay,
+    });
+  }
+
+  return ranges.reverse(); // opcional: para que vaya de más viejo → más reciente
+}
+
 export default factories.createCoreService('api::empresa.empresa', ({ strapi }) => ({
   async getDashboardData({ empresa, sucursal }) {
     if (!empresa) throw new CustomError('Empresa no válida.', 400);
@@ -23,9 +44,9 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
     const rangoFinal = Number(configContable?.rangoFinal || 0);
 
     const dashboardData: any = {
-      cantidadFacturas: rangoFinal - rangoInicial + 1,
-      facturasUsadas: correlativoActual - rangoInicial,
-      facturasDisponibles: rangoFinal - correlativoActual,
+      cantidadFacturas: configContable ? rangoFinal - rangoInicial + 1 : 0,
+      facturasUsadas: configContable ? correlativoActual - rangoInicial : 0,
+      facturasDisponibles: configContable ? rangoFinal - correlativoActual : 0,
     };
 
     // 2️⃣ Contar productos activos en inventario
@@ -36,6 +57,32 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
         producto: { activo: true },
       },
     });
+
+    const totalEarn = async (monthStart: Date, monthEnd: Date) => {
+      
+      const Invoice = await strapi.db.query('api::factura.factura').findMany({
+        where: {
+          empresa,
+          sucursal,
+          estado: { $ne: 'CANCELADO' },
+          createdAt: { $gte: monthStart, $lte: monthEnd },
+        },
+      })
+      return (Invoice).reduce((acc, item)=> acc + (item?.precioVenta || 0), 0)
+    }
+
+    const totalTax = async (monthStart: Date, monthEnd: Date) => {
+      const InvoiceDetails = await strapi.db.query('api::factura.factura').findMany({
+        where: {
+          empresa,
+          sucursal,
+          estado: { $ne: 'CANCELADO' },
+          noConstRegExonerado: { $in: ['0000', null, ""] },
+          createdAt: { $gte: monthStart, $lte: monthEnd },
+        },
+      });
+      return (InvoiceDetails).reduce((acc, item)=> acc + ((item?.totalImpuestoQ || 0) + (item?.totalImpuestoD || 0)), 0)
+    }
 
     // 3️⃣ Preparar fechas del mes actual y anterior
     const now = new Date();
@@ -64,6 +111,49 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
       return facturas.reduce((acc, f) => acc + Number(f[field] || 0), 0);
     };
 
+    // Sumar totales de los últimos 12 meses
+    const rangesDate = getLast12MonthsRanges();
+
+    const getTotalsLast12Months = async () => {
+      const results = [];
+
+      for (const r of rangesDate) {
+        const totalMes = await sumField(
+          "total",
+          r.firstDay,
+          r.lastDay,
+          true // excluir cancelados
+        );
+
+        const totalEarnMonth = await totalEarn(
+          r.firstDay,
+          r.lastDay,
+        )
+
+        const totalTaxMonth = await totalTax(
+          r.firstDay,
+          r.lastDay,
+        )
+
+        // separar nombre y año
+        const [monthName,, year] = r.month.split(" ");
+
+        results.push({
+          monthName,
+          year,
+          value: totalMes,
+          earn: totalEarnMonth,
+          tax: totalTaxMonth,
+          firstDay: r.firstDay,
+          lastDay: r.lastDay,
+        });
+      }
+
+      return results;
+    };
+
+    const totalsLast12MonthsPromise = getTotalsLast12Months();
+
     // 5️⃣ Contar facturas
     const countFacturas = async (monthStart: Date, monthEnd: Date, estado?: string) => {
       const where: any = {
@@ -74,6 +164,31 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
       if (estado) where.estado = estado;
       return strapi.db.query('api::factura.factura').count({ where });
     };
+
+    const productosBajosPromise = await strapi.db.query('api::inventario.inventario').findMany({
+      where: {
+        empresa: { id: empresa },
+        sucursal: { id: sucursal },
+        producto: { activo: true },
+      },
+      populate: { producto: true },
+    });
+
+    const productosBajoExistencia = productosBajosPromise
+    .filter(item => item !== null && item.existencia < item.existenciaMinima)
+    .map(item => ({
+          id: item.id,
+          documentId: item.documentId,
+          nombre: item.producto.nombre,
+          slug: item.producto.slug,
+          unidadMedida: item.unidadMedida,
+          existencia: item.existencia,
+          existenciaMinima: item.existenciaMinima,
+        }));
+      
+
+    dashboardData.productosBajoExistencia = productosBajoExistencia;
+
 
     // 6️⃣ Ejecutar todas las métricas en paralelo
     const [
@@ -88,6 +203,7 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
       impuestosMesActualD,
       impuestosMesAnteriorD,
       productosActivos,
+      totalsLast12Months
     ] = await Promise.all([
       countFacturas(firstDayCurrentMonth, lastDayCurrentMonth, 'CANCELADO'),
       countFacturas(firstDayPrevMonth, lastDayPrevMonth, 'CANCELADO'),
@@ -100,6 +216,7 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
       sumField('totalImpuestoD', firstDayCurrentMonth, lastDayCurrentMonth, true, true),
       sumField('totalImpuestoD', firstDayPrevMonth, lastDayPrevMonth, true, true),
       productosActivosPromise,
+      totalsLast12MonthsPromise
     ]);
 
     const impuestosMesActual = impuestosMesActualQ + impuestosMesActualD;
@@ -117,6 +234,7 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
       totalVentasMesAnterior,
       impuestosMesActual,
       impuestosMesAnterior,
+      totalsLast12Months
     };
   },
 

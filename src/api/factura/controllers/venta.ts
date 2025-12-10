@@ -11,7 +11,7 @@ export default factories.createCoreController(
           // Llamar al servicio que maneja toda la transacción
           const factura =
               await strapi.service('api::factura.factura').createVenta(data);
-
+          ctx.status = 201;
           ctx.body = {
             status: 'success',
             data: factura,

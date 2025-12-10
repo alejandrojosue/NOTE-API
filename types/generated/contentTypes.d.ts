@@ -546,8 +546,7 @@ export interface ApiDetalleFacturaDetalleFactura
         },
         number
       >;
-    factura: Schema.Attribute.Relation<'oneToOne', 'api::factura.factura'> &
-      Schema.Attribute.Required;
+    factura: Schema.Attribute.Relation<'oneToOne', 'api::factura.factura'>;
     isv: Schema.Attribute.Decimal &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
@@ -570,8 +569,8 @@ export interface ApiDetalleFacturaDetalleFactura
         },
         number
       >;
-    producto: Schema.Attribute.Relation<'oneToOne', 'api::producto.producto'> &
-      Schema.Attribute.Required;
+    precioCompra: Schema.Attribute.Decimal;
+    producto: Schema.Attribute.Relation<'oneToOne', 'api::producto.producto'>;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -700,6 +699,13 @@ export interface ApiFacturaFactura extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+    valorGanancia: Schema.Attribute.Decimal &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
   };
 }
 
@@ -836,14 +842,39 @@ export interface ApiPlanPlan extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    activo: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::plan.plan'> &
       Schema.Attribute.Private;
-    maxFacturas: Schema.Attribute.Integer;
-    maxSucursales: Schema.Attribute.Integer;
+    maxFacturas: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    maxProductos: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    maxSucursales: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      >;
     nombre: Schema.Attribute.String & Schema.Attribute.Required;
     precio: Schema.Attribute.Decimal & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
@@ -871,7 +902,6 @@ export interface ApiProductoProducto extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     empresa: Schema.Attribute.Relation<'oneToOne', 'api::empresa.empresa'>;
     exento: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    existencia: Schema.Attribute.Integer & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

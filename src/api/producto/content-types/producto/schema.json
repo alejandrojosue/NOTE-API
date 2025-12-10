@@ -33,10 +33,6 @@
       "required": true,
       "min": 0
     },
-    "existencia": {
-      "type": "integer",
-      "required": true
-    },
     "activo": {
       "type": "boolean",
       "default": true

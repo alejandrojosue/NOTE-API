@@ -16,14 +16,30 @@
       "required": true
     },
     "maxFacturas": {
-      "type": "integer"
+      "type": "integer",
+      "required": true,
+      "default": 0,
+      "unique": false,
+      "min": 0
     },
     "maxSucursales": {
-      "type": "integer"
+      "type": "integer",
+      "required": true,
+      "min": 1
     },
     "precio": {
       "type": "decimal",
       "required": true
+    },
+    "maxProductos": {
+      "type": "integer",
+      "required": true,
+      "default": 0,
+      "min": 1
+    },
+    "activo": {
+      "type": "boolean",
+      "default": true
     }
   }
 }
