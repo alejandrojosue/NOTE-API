@@ -68,7 +68,7 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
           createdAt: { $gte: monthStart, $lte: monthEnd },
         },
       })
-      return (Invoice).reduce((acc, item)=> acc + (item?.precioVenta || 0), 0)
+      return (Invoice).reduce((acc, item)=> acc + (item?.valorGanancia || 0), 0)
     }
 
     const totalTax = async (monthStart: Date, monthEnd: Date) => {
@@ -141,7 +141,7 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
         results.push({
           monthName,
           year,
-          value: totalMes,
+          sales: totalMes,
           earn: totalEarnMonth,
           tax: totalTaxMonth,
           firstDay: r.firstDay,
@@ -202,6 +202,8 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
       impuestosMesAnteriorQ,
       impuestosMesActualD,
       impuestosMesAnteriorD,
+      gananciasMesActual,
+      gananciasMesAnterior,
       productosActivos,
       totalsLast12Months
     ] = await Promise.all([
@@ -215,14 +217,15 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
       sumField('totalImpuestoQ', firstDayPrevMonth, lastDayPrevMonth, true, true),
       sumField('totalImpuestoD', firstDayCurrentMonth, lastDayCurrentMonth, true, true),
       sumField('totalImpuestoD', firstDayPrevMonth, lastDayPrevMonth, true, true),
+      totalEarn(firstDayCurrentMonth, lastDayCurrentMonth),
+      totalEarn(firstDayPrevMonth, lastDayPrevMonth),
       productosActivosPromise,
       totalsLast12MonthsPromise
     ]);
 
     const impuestosMesActual = impuestosMesActualQ + impuestosMesActualD;
     const impuestosMesAnterior = impuestosMesAnteriorQ + impuestosMesAnteriorD;
-
-    // 7️⃣ Combinar y devolver datos
+    
     return {
       ...dashboardData,
       productosActivos,
@@ -234,6 +237,8 @@ export default factories.createCoreService('api::empresa.empresa', ({ strapi }) 
       totalVentasMesAnterior,
       impuestosMesActual,
       impuestosMesAnterior,
+      gananciasMesActual,
+      gananciasMesAnterior,
       totalsLast12Months
     };
   },
